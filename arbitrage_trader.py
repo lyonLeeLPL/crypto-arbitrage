@@ -20,12 +20,13 @@ if __name__ == '__main__':
 		def on_message(self, message):
 			super(ArbitrageTrader, self).on_message(message)
 	'''
-
+	# will add support for other pairs
+	#first version will be designed for buying ETH/USD to BTC/USD only
 	ethusd = OrderBook('ETH-USD')
 	ethusd.start()
-	ethbtc = OrderBookConsole('ETHBTC')
+	ethbtc = OrderBook('ETH-BTC')
 	ethbtc.start()
-	btcusd = OrderBookConsole('BTCUSD')
+	btcusd = OrderBook('BTC-USD')
 	btcusd.start()
 
 
@@ -34,7 +35,7 @@ if __name__ == '__main__':
 	if ethusd.bid/ethbtc.bid == x:
 		if 	
 	'''
-
+	'''
 	try:
         	while True:
             		time.sleep(10)
@@ -45,3 +46,4 @@ if __name__ == '__main__':
         	sys.exit(1)
     	else:
         	sys.exit(0)
+	'''
