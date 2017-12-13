@@ -3,6 +3,7 @@ import sys
 import time
 import datetime as dt
 
+
 from gdax.public_client import PublicClient
 import gdax
 import json
@@ -19,7 +20,7 @@ if __name__ == '__main__':
 			self._ask = None
 			self._bidDepth = None
 			self._askDepth = None
-
+			
 		def on_message(self, message):
 			super(Spread, self).on_message(message)
 			
@@ -44,23 +45,22 @@ if __name__ == '__main__':
 	# will add support for other pairs
 	#first version will be designed for buying ETH/USD to BTC/USD only
 	ethusd = Spread('ETH-USD')
-	#ethusd.start()
+	ethusd.start()
 	# wait 4 seconds due to websocket rate limit
 	ethbtc = Spread('ETH-BTC')
 	btcusd = Spread('BTC-USD')
-	ethusd.start()
-	time.sleep(4)
+	time.sleep(5)
 	ethbtc.start()
-	time.sleep(4)
+	time.sleep(5)
 	btcusd.start()
-	
+	time.sleep(5)
 	with open('./config/sandbox.json', 'r') as f:
 		config = json.load(f)
 	
 	auth_client = gdax.AuthenticatedClient(config["apiKey"], config['apiSecret'], config['apiPassphrase'])
 	#check for arbitrage opportunity, currently assuming no fee
 	#well this works now write clean code and figure out how to call only when on_message is called so im not wasting resources
-	while True:
+	'''while True:
 		try:
 			pnl = btcusd.get_bid() * ethbtc.get_bid() - ethusd.get_ask()
 			print "PNL: ",pnl
@@ -70,12 +70,17 @@ if __name__ == '__main__':
 			print "error"
 	
 		#return pnl > 0  	
-	
+	'''
 
 	
 	try:
         	while True:
-            		time.sleep(10)
+			pnl = btcusd._bid * ethbtc._bid - ethusd._ask
+			print "PNL: ",pnl
+			#print btcusd._bid
+			#print ethbtc._bid
+			#print ethusd._ask
+            		#time.sleep(10)
     	except KeyboardInterrupt:
         	ethusd.close()
 		ethbtc.close()
