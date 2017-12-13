@@ -47,9 +47,7 @@ if __name__ == '__main__':
 	#ethusd.start()
 	# wait 4 seconds due to websocket rate limit
 	ethbtc = Spread('ETH-BTC')
-	#ethbtc.start()
 	btcusd = Spread('BTC-USD')
-	#btcusd.start()
 	ethusd.start()
 	time.sleep(4)
 	ethbtc.start()
@@ -57,7 +55,7 @@ if __name__ == '__main__':
 	btcusd.start()
 	
 	with open('./config/sandbox.json', 'r') as f:
-		config = json.load()
+		config = json.load(f)
 	
 	auth_client = gdax.AuthenticatedClient(config["apiKey"], config['apiSecret'], config['apiPassphrase'])
 	#check for arbitrage opportunity, currently assuming no fee
@@ -66,6 +64,8 @@ if __name__ == '__main__':
 		try:
 			pnl = btcusd.get_bid() * ethbtc.get_bid() - ethusd.get_ask()
 			print "PNL: ",pnl
+			#if pnl > x, then trade
+				
 		except ValueError:
 			print "error"
 	
