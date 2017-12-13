@@ -41,11 +41,14 @@ if __name__ == '__main__':
 	# will add support for other pairs
 	#first version will be designed for buying ETH/USD to BTC/USD only
 	ethusd = Spread('ETH-USD')
-	ethusd.start()
+	#ethusd.start()
 	# wait 4 seconds due to websocket rate limit
 	ethbtc = Spread('ETH-BTC')
-	ethbtc.start()
+	#ethbtc.start()
 	btcusd = Spread('BTC-USD')
+	#btcusd.start()
+	ethusd.start()
+	ethbtc.start()
 	btcusd.start()
 
 	
