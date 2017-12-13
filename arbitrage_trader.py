@@ -4,6 +4,8 @@ import time
 import datetime as dt
 
 from gdax.public_client import PublicClient
+import gdax
+import json
 
 if __name__ == '__main__':
 	
@@ -37,7 +39,8 @@ if __name__ == '__main__':
                 		self._askDepth = askDepth
                 		print('{} {} bid: {:.3f} @ {:.2f}\task: {:.3f} @ {:.2f}'.format(
                     			dt.datetime.now(), self.product_id, bidDepth, bid, askDepth, ask))
-	
+				#check_arbitrage()
+
 	# will add support for other pairs
 	#first version will be designed for buying ETH/USD to BTC/USD only
 	ethusd = Spread('ETH-USD')
@@ -48,15 +51,27 @@ if __name__ == '__main__':
 	btcusd = Spread('BTC-USD')
 	#btcusd.start()
 	ethusd.start()
+	time.sleep(4)
 	ethbtc.start()
+	time.sleep(4)
 	btcusd.start()
-
 	
-	#arbitrage logic to buy ETHUSD
-	'''
-	if ethusd.bid/ethbtc.bid == x:
-		if 	
-	'''
+	with open('./config/sandbox.json', 'r') as f:
+		config = json.load()
+	
+	auth_client = gdax.AuthenticatedClient(config["apiKey"], config['apiSecret'], config['apiPassphrase'])
+	#check for arbitrage opportunity, currently assuming no fee
+	#well this works now write clean code and figure out how to call only when on_message is called so im not wasting resources
+	while True:
+		try:
+			pnl = btcusd.get_bid() * ethbtc.get_bid() - ethusd.get_ask()
+			print "PNL: ",pnl
+		except ValueError:
+			print "error"
+	
+		#return pnl > 0  	
+	
+
 	
 	try:
         	while True:
