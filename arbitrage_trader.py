@@ -44,6 +44,13 @@ if __name__ == '__main__':
                     			dt.datetime.now(), self.product_id, bidDepth, bid, askDepth, ask))
 				#check_arbitrage()
 
+				q.put({"product":self.product_id, "bid":self._bid})
+			 
+	q = Queue(maxsize=0)
+	num_threads = 3	
+
+
+
 	# will add support for other pairs
 	#first version will be designed for buying ETH/USD to BTC/USD only
 	ethusd = Spread('ETH-USD')
@@ -61,16 +68,20 @@ if __name__ == '__main__':
 	
 	auth_client = gdax.AuthenticatedClient(config["apiKey"], config['apiSecret'], config['apiPassphrase'], api_url="https://api-public.sandbox.gdax.com")
 	#check for arbitrage opportunity, currently assuming no fee
-	#well this works now write clean code and figure out how to call only when on_message is called so im not wasting resources
+	#well this works now write clean code and figure out how to call only when on_message is called so im not wasting resources, using 100% cpu
+
+	bids = {"BTC-USD": 0, "ETH-BTC": 0, "ETH-USD": 0} 
 	while True:
 		try:
-			#print btcusd._bid
-                	#print ethbtc._bid
-                	#print ethusd._ask
-			pnl = btcusd._bid * ethbtc._bid - ethusd._ask
-			#print "PNL: ",pnl
+			pnl = bids['BTC-USD'] * bids['ETH-BTC'] - bids['ETH-USD']
+			#pnl = btcusd._bid * ethbtc._bid - ethusd._ask
+			last_update = q.get()
+			bids[last_update['product']] = last_update['bid']
+			print "PNL: ",pnl
+
 			#if pnl > x, then trade
 			#not using market making, will have to pay fees, not a profitable entry strategy
+			'''
 			if pnl > 0:
 				#get margin account so these can be done in sync
 				order1_id = auth_client.buy(price=str(ethusd._ask), size='1.0', product_id = 'ETH-USD')
@@ -88,7 +99,7 @@ if __name__ == '__main__':
 				order3_id = auth_client.sell(price=str(btcusd._bid), size = btc_balance, product_id='BTC-USD')
 				time.sleep(60)
 				#just for test so we don't open a ton of trades repeatedly
-				
+			'''				
 		except Exception as e:
 			print e
 	
