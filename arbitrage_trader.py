@@ -76,18 +76,22 @@ if __name__ == '__main__':
 	asks = {"BTC-USD": None, "ETH-BTC": None, "ETH-USD": None}
 	while True:
 		try:
-			if bids['BTC-USD'] is not None and bids['ETH-BTC'] is not None and bids['ETH-USD'] is not None:
-				pnl = bids['BTC-USD'][0] * bids['ETH-BTC'][0] - bids['ETH-USD'][0]
+			#if bids['BTC-USD'] is not None and bids['ETH-BTC'] is not None and bids['ETH-USD'] is not None:
+			#	pnl = bids['BTC-USD'][0] * bids['ETH-BTC'][0] - bids['ETH-USD'][0]
 			#pnl = btcusd._bid * ethbtc._bid - ethusd._ask
 			last_update = q.get()
 			bids[last_update['product']] = last_update['bid']
 			asks[last_update['product']] = last_update['ask']
-			print "PNL: ",pnl
+			if bids['BTC-USD'] is not None and bids['ETH-BTC'] is not None and bids['ETH-USD'] is not None:
+                                pnl = bids['BTC-USD'][0] * bids['ETH-BTC'][0] - bids['ETH-USD'][0]
+                        #pnl = btcusd._bid * ethbtc._bid - ethusd._ask
+			if pnl is not None:
+				print "PNL: ",pnl
 
 			#if pnl > x, then trade
 			#not using market making, will have to pay fees, not a profitable entry strategy
 			
-			if pnl > 0:
+			if pnl is not None and pnl > 0:
 				#get margin account so these can be done in sync
 				order1_id = auth_client.buy(price=str(ethusd._ask), size='1.0', product_id = 'ETH-USD')
 				print order1_id
