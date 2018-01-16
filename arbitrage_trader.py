@@ -10,7 +10,6 @@ import json
 import decimal
 from Queue import Queue
 
-#keep stopping and starting aws instance until i get one that is closer to gdax server, got .6 ms on first try
 
 if __name__ == '__main__':
 	
@@ -64,7 +63,7 @@ if __name__ == '__main__':
 	time.sleep(5)
 	btcusd.start()
 	time.sleep(5)
-	with open('./config/sandbox.json', 'r') as f:
+	with open('./config/live.json', 'r') as f:
 		config = json.load(f)
 	
 	auth_client = gdax.AuthenticatedClient(config["apiKey"], config['apiSecret'], config['apiPassphrase'], api_url="https://api-public.sandbox.gdax.com")
@@ -93,18 +92,18 @@ if __name__ == '__main__':
 			
 			if pnl is not None and pnl > 0:
 				#get margin account so these can be done in sync
-				order1_id = auth_client.buy(price=str(ethusd._ask), size='1.0', product_id = 'ETH-USD')
+				order1_id = auth_client.buy(price=str(ethusd._ask), size='.01', product_id = 'ETH-USD')
 				print order1_id
 				#might be able to do this with the websocket for faster response
 				eth_balance = 0
 				while eth_balance == 0:
-					print eth_balance
-					
 					eth_balance = auth_client.get_position()["accounts"]["ETH"]["balance"]
+					print eth_balance
 				order2_id = auth_client.sell(price=str(ethbtc._bid), size=eth_balance, product_id='ETH-BTC')
 				btc_balance = 0
 				while btc_balance == 0:
 					btc_balance = auth_client.get_position()["accounts"]["BTC"]["balance"]
+					print btc_balance
 				order3_id = auth_client.sell(price=str(btcusd._bid), size = btc_balance, product_id='BTC-USD')
 				time.sleep(60)
 				#just for test so we don't open a ton of trades repeatedly
