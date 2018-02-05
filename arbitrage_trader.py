@@ -81,8 +81,8 @@ if __name__ == '__main__':
 			last_update = q.get()
 			bids[last_update['product']] = last_update['bid']
 			asks[last_update['product']] = last_update['ask']
-			if bids['BTC-USD'] is not None and bids['ETH-BTC'] is not None and bids['ETH-USD'] is not None:
-                                pnl = bids['BTC-USD'][0] * bids['ETH-BTC'][0] - bids['ETH-USD'][0]
+			if bids['BTC-USD'] is not None and bids['ETH-BTC'] is not None and asks['ETH-USD'] is not None:
+                                pnl = bids['BTC-USD'][0] * bids['ETH-BTC'][0] - asks['ETH-USD'][0]
                         #pnl = btcusd._bid * ethbtc._bid - ethusd._ask
 			if pnl is not None:
 				print "PNL: ",pnl
