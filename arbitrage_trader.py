@@ -2,7 +2,6 @@ from gdax.order_book import OrderBook
 import sys
 import time
 import datetime as dt
-#consider changing to multiprocessing
 
 from gdax.public_client import PublicClient
 import gdax
@@ -33,10 +32,10 @@ if __name__ == '__main__':
 			askDepth = sum([a['size'] for a in self.get_asks(ask)])
 
 			if self._bid == bid and self._ask == ask and self._bidDepth == bidDepth and self._askDepth == askDepth:
-                		# If there are no changes to the bid-ask spread since the last update, no need to print
+                		#no changes to spread so do nothing
                 		pass
             		else:
-                		# If there are differences, update the cache
+                		# update cache
                 		self._bid = bid
                 		self._ask = ask
                 		self._bidDepth = bidDepth
@@ -50,26 +49,27 @@ if __name__ == '__main__':
 	num_threads = 3	
 
 
-
-	# will add support for other pairs
-	#first version will be designed for buying ETH/USD to BTC/USD only
 	ethusd = Spread('ETH-USD')
-	ethusd.start()
-	# wait 4 seconds due to websocket rate limit
 	ethbtc = Spread('ETH-BTC')
 	btcusd = Spread('BTC-USD')
+	
+	#wait 5 seconds when starting threads due to websocket rate limit
+	ethusd.start()
 	time.sleep(5)
+	
 	ethbtc.start()
 	time.sleep(5)
+	
 	btcusd.start()
 	time.sleep(5)
+	
+	#load json with api connection details
 	with open('./config/live.json', 'r') as f:
 		config = json.load(f)
 	
-	auth_client = gdax.AuthenticatedClient(config["apiKey"], config['apiSecret'], config['apiPassphrase'], api_url="https://api-public.sandbox.gdax.com")
-	#check for arbitrage opportunity, currently assuming no fee
-	#well this works now write clean code and figure out how to call only when on_message is called so im not wasting resources, using 100% cpu
-
+	#connect to the authenticated client
+	auth_client = gdax.AuthenticatedClient(config["apiKey"], config['apiSecret'], config['apiPassphrase'], api_url="https://api.gdax.com")
+	
 	#store tuple (price,size)
 	bids = {"BTC-USD": None, "ETH-BTC": None, "ETH-USD": None} 
 	asks = {"BTC-USD": None, "ETH-BTC": None, "ETH-USD": None}
@@ -87,11 +87,11 @@ if __name__ == '__main__':
 			if pnl is not None:
 				print "PNL: ",pnl
 
-			#if pnl > x, then trade
-			#not using market making, will have to pay fees, not a profitable entry strategy
+		
 			
+			#entry conditions
 			if pnl is not None and pnl > 0:
-				#get margin account so these can be done in sync
+				
 				order1_id = auth_client.buy(price=str(ethusd._ask), size='.01', product_id = 'ETH-USD')
 				print order1_id
 				#might be able to do this with the websocket for faster response
@@ -105,8 +105,9 @@ if __name__ == '__main__':
 					btc_balance = auth_client.get_position()["accounts"]["BTC"]["balance"]
 					print btc_balance
 				order3_id = auth_client.sell(price=str(btcusd._bid), size = btc_balance, product_id='BTC-USD')
+				#sleep while testing to avoid opening a ton of trades
 				time.sleep(60)
-				#just for test so we don't open a ton of trades repeatedly
+				
 		
 		#except (KeyboardInterrupt, SystemExit):
 		#	ethusd.close()
